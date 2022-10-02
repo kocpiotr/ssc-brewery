@@ -29,7 +29,7 @@ public class PasswordEncodingTests {
 
     @Test
     void testBcrypt15WithUserScott() {
-        PasswordEncoder bcrypt = new BCryptPasswordEncoder(15);
+        PasswordEncoder bcrypt = new BCryptPasswordEncoder(16);
 
         System.out.println(bcrypt.encode("tiger"));
 

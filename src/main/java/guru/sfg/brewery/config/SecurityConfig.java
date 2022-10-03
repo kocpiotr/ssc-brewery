@@ -43,11 +43,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 http.addFilterBefore(restUrlAuthFilter(authenticationManager()),
                         UsernamePasswordAuthenticationFilter.class);
 
+                http.headers().frameOptions().disable();
+
+
                 http
                 .authorizeRequests(authorize -> {
                     authorize
                             .antMatchers("/", "/webjars/**", "/login", "/resources/**").permitAll()
                             .antMatchers("/beers/find", "/beers*").permitAll()
+                            .antMatchers("/h2-console/**").permitAll()
                             .antMatchers(HttpMethod.GET, "/api/v1/beer/**").permitAll()
                             .mvcMatchers(HttpMethod.GET, "/api/v1/beerUpc/{upc}").permitAll();
                 } )
@@ -74,7 +78,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .password("{sha256}1296cefceb47413d3fb91ac7586a4625c33937b4d3109f5a4dd96c79c46193a029db713b96006ded")
                 .roles("USER");
 
-        auth.inMemoryAuthentication().withUser("scott").password("{bcrypt10}$2a$10$jv7rEbL65k4Q3d/mqG5MLuLDLTlg5oKoq2QOOojfB3e2awo.nlmgu").roles("CUSTOMER");
+        auth.inMemoryAuthentication()
+                .withUser("scott")
+                .password("{bcrypt10}$2a$10$jv7rEbL65k4Q3d/mqG5MLuLDLTlg5oKoq2QOOojfB3e2awo.nlmgu")
+                .roles("CUSTOMER");
     }
 
     //    @Override

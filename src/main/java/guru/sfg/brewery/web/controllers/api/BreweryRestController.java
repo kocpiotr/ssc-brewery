@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package guru.sfg.brewery.web.controllers;
+package guru.sfg.brewery.web.controllers.api;
 
 import guru.sfg.brewery.domain.Brewery;
 import guru.sfg.brewery.services.BreweryService;
@@ -25,20 +25,20 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 
 @RequiredArgsConstructor
-@RequestMapping("/brewery")
-@Controller
-public class BreweryController {
+@RequestMapping("/api/v1/")
+@RestController
+public class BreweryRestController {
 
     private final BreweryService breweryService;
 
-    @GetMapping({"/breweries", "/breweries/index", "/breweries/index.html", "/breweries.html"})
-    public String listBreweries(Model model) {
-        model.addAttribute("breweries", breweryService.getAllBreweries());
-        return "breweries/index";
+    @GetMapping("/breweries")
+    List<Brewery> getBreweriesJson(){
+        return breweryService.getAllBreweries();
     }
 }

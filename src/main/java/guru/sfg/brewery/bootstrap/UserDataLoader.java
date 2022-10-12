@@ -35,35 +35,34 @@ public class UserDataLoader implements CommandLineRunner {
         Authority readBeer = authorityRepository.save(Authority.builder().permission("beer.read").build());
         Authority deleteBeer = authorityRepository.save(Authority.builder().permission("beer.delete").build());
 
+        Authority createCustomer = authorityRepository.save(Authority.builder().permission("customer.create").build());
+        Authority readCustomer = authorityRepository.save(Authority.builder().permission("customer.read").build());
+        Authority updateCustomer = authorityRepository.save(Authority.builder().permission("customer.update").build());
+        Authority deleteCustomer = authorityRepository.save(Authority.builder().permission("customer.delete").build());
+
+        Authority createBrewery = authorityRepository.save(Authority.builder().permission("brewery.create").build());
+        Authority readBrewery = authorityRepository.save(Authority.builder().permission("brewery.read").build());
+        Authority updateBrewery = authorityRepository.save(Authority.builder().permission("brewery.update").build());
+        Authority deleteBrewery = authorityRepository.save(Authority.builder().permission("brewery.delete").build());
+
+
         Role adminRole = roleRepository.save(Role.builder().name("ADMIN").build());
         Role customerRole = roleRepository.save(Role.builder().name("CUSTOMER").build());
         Role userRole = roleRepository.save(Role.builder().name("USER").build());
 
-        adminRole.setAuthorities(Set.of(createBeer, updateBeer, readBeer, deleteBeer));
+        adminRole.setAuthorities(Set.of(createBeer, updateBeer, readBeer, deleteBeer, createCustomer, readCustomer,
+                updateCustomer, deleteCustomer, createBrewery, readBrewery, updateBrewery, deleteBrewery));
 
-        customerRole.setAuthorities(Set.of(readBeer));
-
+        customerRole.setAuthorities(Set.of(readBeer, readBrewery, readCustomer));
         userRole.setAuthorities(Set.of(readBeer));
 
         roleRepository.saveAll(Arrays.asList(adminRole, customerRole, userRole));
 
-        userRepository.save(User.builder()
-                .username("spring")
-                .password(passwordEncoder.encode("guru"))
-                .role(adminRole)
-                .build());
+        userRepository.save(User.builder().username("spring").password(passwordEncoder.encode("guru")).role(adminRole).build());
 
-        userRepository.save(User.builder()
-                .username("user")
-                .password(passwordEncoder.encode("password"))
-                .role(userRole)
-                .build());
+        userRepository.save(User.builder().username("user").password(passwordEncoder.encode("password")).role(userRole).build());
 
-        userRepository.save(User.builder()
-                .username("scott")
-                .password(passwordEncoder.encode("tiger"))
-                .role(customerRole)
-                .build());
+        userRepository.save(User.builder().username("scott").password(passwordEncoder.encode("tiger")).role(customerRole).build());
 
         log.debug("Users Loaded: " + userRepository.count());
     }

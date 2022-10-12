@@ -75,24 +75,84 @@ public class BeerRestControllerIT extends BaseIT {
     }
 
     @Test
-    void findBeers() throws Exception{
+    void findBeersForUnauthorizedUser() throws Exception{
         mockMvc.perform(get("/api/v1/beer/"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void findBeersForAdmin() throws Exception{
+        mockMvc.perform(get("/api/v1/beer/").with(httpBasic("spring", "guru")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void findBeerById() throws Exception{
+    void findBeersForCustomer() throws Exception{
+        mockMvc.perform(get("/api/v1/beer/").with(httpBasic("scott", "tiger")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findBeersForUser() throws Exception{
+        mockMvc.perform(get("/api/v1/beer/").with(httpBasic("user", "password")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findBeerByIdForUnauthorizedUser() throws Exception{
         Beer beer = beerRepository.findAll().get(0);
 
         mockMvc.perform(get("/api/v1/beer/" + beer.getId()))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void findBeerByIdForAdmin() throws Exception{
+        Beer beer = beerRepository.findAll().get(0);
+
+        mockMvc.perform(get("/api/v1/beer/" + beer.getId()).with(httpBasic("spring", "guru")))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void findBeerByUpc() throws Exception{
-        mockMvc.perform(get("/api/v1/beerUpc/0631234200036"))
+    void findBeerByIdForCustomer() throws Exception{
+        Beer beer = beerRepository.findAll().get(0);
+
+        mockMvc.perform(get("/api/v1/beer/" + beer.getId()).with(httpBasic("scott", "tiger")))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void findBeerByIdForUser() throws Exception{
+        Beer beer = beerRepository.findAll().get(0);
+
+        mockMvc.perform(get("/api/v1/beer/" + beer.getId()).with(httpBasic("user", "password")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findBeerByUpcForUnauthorizedUser() throws Exception{
+        mockMvc.perform(get("/api/v1/beerUpc/0631234200036"))
+                .andExpect(status().isUnauthorized());
+    }
+    @Test
+    void findBeerByUpcForAdmin() throws Exception{
+        mockMvc.perform(get("/api/v1/beerUpc/0631234200036").with(httpBasic("spring", "guru")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findBeerByUpcForCustomer() throws Exception{
+        mockMvc.perform(get("/api/v1/beerUpc/0631234200036").with(httpBasic("scott", "tiger")))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void findBeerByUpcForUser() throws Exception{
+        mockMvc.perform(get("/api/v1/beerUpc/0631234200036").with(httpBasic("user", "password")))
+                .andExpect(status().isOk());
+    }
+
 
     @Test
     void findBeerFormADMIN() throws Exception {

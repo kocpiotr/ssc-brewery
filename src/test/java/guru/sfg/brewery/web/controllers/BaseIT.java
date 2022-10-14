@@ -15,32 +15,28 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
  * Created by jt on 6/13/20.
  */
 public abstract class BaseIT {
+    protected MockMvc mockMvc;
     @Autowired
     WebApplicationContext wac;
 
-    protected MockMvc mockMvc;
-
-    @BeforeEach
-    public void setup() {
-        mockMvc = MockMvcBuilders
-                .webAppContextSetup(wac)
-                .apply(springSecurity())
-                .build();
+    public static Stream<Arguments> getStreamAdminsOnly() {
+        return Stream.of(Arguments.of("spring", "guru"));
     }
 
     public static Stream<Arguments> getStreamAdminCustomer() {
-        return Stream.of(Arguments.of("spring" , "guru"),
-                Arguments.of("scott", "tiger"));
+        return Stream.of(Arguments.of("spring", "guru"), Arguments.of("scott", "tiger"));
     }
 
     public static Stream<Arguments> getStreamAllUsers() {
-        return Stream.of(Arguments.of("spring" , "guru"),
-                Arguments.of("scott", "tiger"),
-                Arguments.of("user", "password"));
+        return Stream.of(Arguments.of("spring", "guru"), Arguments.of("scott", "tiger"), Arguments.of("user", "password"));
     }
 
     public static Stream<Arguments> getStreamNotAdmin() {
-        return Stream.of(Arguments.of("scott", "tiger"),
-                Arguments.of("user", "password"));
+        return Stream.of(Arguments.of("scott", "tiger"), Arguments.of("user", "password"));
+    }
+
+    @BeforeEach
+    public void setup() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(wac).apply(springSecurity()).build();
     }
 }

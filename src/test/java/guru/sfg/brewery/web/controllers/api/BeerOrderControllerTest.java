@@ -2,9 +2,7 @@ package guru.sfg.brewery.web.controllers.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import guru.sfg.brewery.bootstrap.DefaultBreweryLoader;
-import guru.sfg.brewery.domain.Beer;
-import guru.sfg.brewery.domain.BeerOrder;
-import guru.sfg.brewery.domain.Customer;
+import guru.sfg.brewery.domain.*;
 import guru.sfg.brewery.repositories.BeerOrderRepository;
 import guru.sfg.brewery.repositories.BeerRepository;
 import guru.sfg.brewery.repositories.CustomerRepository;
@@ -22,10 +20,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -56,6 +54,16 @@ class BeerOrderControllerTest extends BaseIT {
         dunedinCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.DUNEDIN_DISTRIBUTING).orElseThrow();
         keyWestCustomer = customerRepository.findAllByCustomerName(DefaultBreweryLoader.KEY_WEST_DISTRIBUTORS).orElseThrow();
         loadedBeers = beerRepository.findAll();
+    }
+
+    private BeerOrder createOneOfForCustomer(Customer customer) {
+        return beerOrderRepository.saveAndFlush(BeerOrder.builder()
+                .customer(customer)
+                .orderStatus(OrderStatusEnum.NEW)
+                .beerOrderLines(
+                        Set.of(
+                                BeerOrderLine.builder().beer(loadedBeers.get(0)).orderQuantity(2).build())
+                ).build());
     }
 
 //cant use nested tests bug - https://github.com/spring-projects/spring-security/issues/8793
@@ -188,24 +196,44 @@ class BeerOrderControllerTest extends BaseIT {
                 .andExpect(status().isForbidden());
     }
 
-    @Disabled
     @Test
-    void pickUpOrderNotAuth() {
+    void pickUpOrderNotAuth() throws Exception {
+        BeerOrder beerOrderForStPete = createOneOfForCustomer(stPeteCustomer);
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/"+ beerOrderForStPete.getId() +"/pickup")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .characterEncoding("UTF-8")
+                ).andExpect(status().isUnauthorized());
+
     }
 
-    @Disabled
+    @WithUserDetails("spring")
     @Test
-    void pickUpOrderNotAdminUser() {
+    void pickUpOrderAdminUser() throws Exception {
+        BeerOrder beerOrderForStPete = createOneOfForCustomer(stPeteCustomer);
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/"+ beerOrderForStPete.getId() +"/pickup")
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        ).andExpect(status().isNoContent());
     }
 
-    @Disabled
+    @WithUserDetails(DefaultBreweryLoader.STPETE_USER)
     @Test
-    void pickUpOrderCustomerUserAUTH() {
+    void pickUpOrderCustomerUserAUTH() throws Exception {
+        BeerOrder beerOrderForStPete = createOneOfForCustomer(stPeteCustomer);
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/"+ beerOrderForStPete.getId() +"/pickup")
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        ).andExpect(status().isNoContent());
     }
 
-    @Disabled
+    @WithUserDetails(DefaultBreweryLoader.DUNEDIN_USER)
     @Test
-    void pickUpOrderCustomerUserNOT_AUTH() {
+    void pickUpOrderCustomerUserNOT_AUTH() throws Exception {
+        BeerOrder beerOrderForStPete = createOneOfForCustomer(stPeteCustomer);
+        mockMvc.perform(put(API_ROOT + stPeteCustomer.getId() + "/orders/"+ beerOrderForStPete.getId() +"/pickup")
+                .accept(MediaType.APPLICATION_JSON)
+                .characterEncoding("UTF-8")
+        ).andExpect(status().isForbidden());
     }
 
     private BeerOrderDto buildOrderDto(Customer customer, UUID beerId) {

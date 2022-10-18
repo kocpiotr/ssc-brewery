@@ -14,26 +14,18 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class AuthenticationSuccessListener {
+public class AuthenticationFailureListener {
 
     @EventListener
-    public void listen(AuthenticationSuccessEvent event){
-
-        log.debug("User Logged In Okay");
-
+    public void listenFailures(AuthenticationFailureBadCredentialsEvent event) {
+        log.debug("User not loged in!!!");
         if (event.getSource() instanceof UsernamePasswordAuthenticationToken) {
             UsernamePasswordAuthenticationToken token = (UsernamePasswordAuthenticationToken) event.getSource();
+            log.debug("Notice attempt to login as: " + token.getPrincipal() + " User");
 
-            if(token.getPrincipal() instanceof User){
-                User user = (User) token.getPrincipal();
-
-                log.debug("User name logged in: " + user.getUsername() );
-            }
-
-            if(token.getDetails() instanceof WebAuthenticationDetails){
+            if (token.getDetails() instanceof WebAuthenticationDetails) {
                 WebAuthenticationDetails details = (WebAuthenticationDetails) token.getDetails();
-
-                log.debug("Source IP: " + details.getRemoteAddress());
+                log.debug("Attempt performed from this address: " + details.getRemoteAddress());
             }
         }
 
